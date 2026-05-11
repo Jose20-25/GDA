@@ -1,7 +1,31 @@
-/* db.js — Almacenamiento 100 % local: IndexedDB para PDFs, localStorage para miembros */
+/* db.js — PDFs estáticos (GitHub) + IndexedDB local; miembros en localStorage */
 
 // ══════════════════════════════════════════════════════════════════════════
-// IndexedDB — PDFs
+// Manifest estático — archivos.json (compartido en todos los dispositivos)
+// ══════════════════════════════════════════════════════════════════════════
+let _manifest = null;
+
+async function _cargarManifest() {
+  if (_manifest) return _manifest;
+  try {
+    const res = await fetch('archivos.json?v=' + Date.now());
+    _manifest = res.ok ? await res.json() : {};
+  } catch { _manifest = {}; }
+  return _manifest;
+}
+
+async function listarPDFsEstaticos(dia) {
+  const m = await _cargarManifest();
+  return Array.isArray(m[dia]) ? m[dia] : [];
+}
+
+// URL pública de un PDF estático
+function urlPDF(dia, nombre) {
+  return `${dia}/${encodeURIComponent(nombre)}`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// IndexedDB — PDFs subidos localmente (solo en este dispositivo)
 // ══════════════════════════════════════════════════════════════════════════
 const _DB_NAME    = 'gdaDB';
 const _DB_VERSION = 1;
@@ -32,7 +56,7 @@ async function guardarPDF(dia, nombre, blob) {
   });
 }
 
-async function listarPDFs(dia) {
+async function listarPDFsLocales(dia) {
   const db = await _openDB();
   return new Promise((resolve, reject) => {
     const tx  = db.transaction('pdfs', 'readonly');
@@ -43,15 +67,13 @@ async function listarPDFs(dia) {
       if (cursor) {
         if (cursor.value.dia === dia) out.push(cursor.value.nombre);
         cursor.continue();
-      } else {
-        resolve(out);
-      }
+      } else { resolve(out); }
     };
     req.onerror = e => reject(e.target.error);
   });
 }
 
-async function obtenerPDF(dia, nombre) {
+async function obtenerPDFLocal(dia, nombre) {
   const db = await _openDB();
   return new Promise((resolve, reject) => {
     const tx  = db.transaction('pdfs', 'readonly');
@@ -61,7 +83,7 @@ async function obtenerPDF(dia, nombre) {
   });
 }
 
-async function eliminarPDF(dia, nombre) {
+async function eliminarPDFLocal(dia, nombre) {
   const db = await _openDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction('pdfs', 'readwrite');
@@ -69,6 +91,36 @@ async function eliminarPDF(dia, nombre) {
     tx.oncomplete = resolve;
     tx.onerror    = e => reject(e.target.error);
   });
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// API pública unificada (estáticos + locales combinados)
+// ══════════════════════════════════════════════════════════════════════════
+
+async function listarPDFs(dia) {
+  const [estaticos, locales] = await Promise.all([
+    listarPDFsEstaticos(dia),
+    listarPDFsLocales(dia)
+  ]);
+  // Combinar sin duplicados
+  const todos = [...estaticos];
+  locales.forEach(n => { if (!todos.includes(n)) todos.push(n); });
+  return todos;
+}
+
+async function obtenerPDF(dia, nombre) {
+  // Intentar como archivo estático primero
+  try {
+    const res = await fetch(urlPDF(dia, nombre));
+    if (res.ok) return await res.blob();
+  } catch {}
+  // Fallback a IndexedDB local
+  return obtenerPDFLocal(dia, nombre);
+}
+
+async function eliminarPDF(dia, nombre) {
+  // Solo se pueden eliminar los locales (los estáticos viven en GitHub)
+  return eliminarPDFLocal(dia, nombre);
 }
 
 // ══════════════════════════════════════════════════════════════════════════

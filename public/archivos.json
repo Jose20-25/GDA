@@ -1,0 +1,6 @@
+{
+  "miercoles": ["M1.pdf","M2.pdf","M3.pdf","M4.pdf","M5.pdf","M6.pdf","M7.pdf"],
+  "viernes":   ["v1.pdf","V2.pdf","V3.pdf","V4.pdf","V5.pdf","V6.pdf","V7.pdf"],
+  "domingo":   ["D1.pdf","D2.pdf","D3.pdf","D4.pdf","D5.pdf","D6.pdf","D7.pdf"],
+  "vigilias":  []
+}
