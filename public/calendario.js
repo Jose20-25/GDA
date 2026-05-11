@@ -21,11 +21,10 @@ async function renderCalendario() {
   const hoy   = new Date();
   const hoyMs = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).getTime();
 
-  // Fetch y ordenar archivos
+  // Fetch desde IndexedDB (sin servidor)
   let archivos = [];
   try {
-    const res = await fetch('/api/archivos/' + dia);
-    if (res.ok) archivos = await res.json();
+    archivos = await listarPDFs(dia);
   } catch {}
   archivos.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
 

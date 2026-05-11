@@ -1,4 +1,4 @@
-﻿/* app.js — Logica de cada pagina de dia */
+﻿/* app.js — Logica de cada pagina de dia (almacenamiento local: IndexedDB) */
 
 const DIA = typeof DIA_ACTUAL !== "undefined" ? DIA_ACTUAL : "miercoles";
 
@@ -17,10 +17,7 @@ async function cargarArchivos() {
   const listEl = document.getElementById("file-list");
   listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>Cargando...</div>';
   try {
-    const res = await fetch("/api/archivos/" + DIA);
-    if (!res.ok) throw new Error();
-    const archivos = await res.json();
-    // Ordenar alfanuméricamente (1.pdf, 2.pdf, Cadena1.pdf …)
+    const archivos = await listarPDFs(DIA);
     archivos.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
     if (!archivos.length) {
       listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📂</div>No hay archivos aun. Sube el primer PDF para este dia.<p></p></div>';
@@ -28,7 +25,6 @@ async function cargarArchivos() {
       listEl.innerHTML = "";
       archivos.forEach((nombre, i) => listEl.appendChild(crearItem(nombre, i + 1, archivos.length)));
     }
-    // Actualizar calendario según los archivos cargados
     if (typeof renderCalendario === 'function') renderCalendario();
   } catch {
     listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div>No se pudieron cargar los archivos.</div>';
@@ -60,43 +56,31 @@ function crearItem(nombre, numCadena, total) {
   return item;
 }
 
-/* Subir archivo */
+/* Guardar archivo en IndexedDB */
 async function subirArchivo(file) {
   if (!file) return;
   if (file.type !== "application/pdf") { showToast("Solo se permiten PDFs.", "error"); return; }
-  if (file.size > 20 * 1024 * 1024) { showToast("El archivo supera 20 MB.", "error"); return; }
+  if (file.size > 50 * 1024 * 1024) { showToast("El archivo supera 50 MB.", "error"); return; }
 
-  const pw = document.getElementById("progress-dia");
-  const fill = pw.querySelector(".progress-fill");
+  const pw    = document.getElementById("progress-dia");
+  const fill  = pw.querySelector(".progress-fill");
   const label = pw.querySelector(".progress-label");
   pw.classList.remove("hidden");
-  fill.style.width = "0%";
+  fill.style.width = "50%";
+  label.textContent = "Guardando...";
 
-  const fd = new FormData();
-  fd.append("pdf", file);
-
-  return new Promise(resolve => {
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/upload/" + DIA);
-    xhr.upload.onprogress = e => {
-      if (e.lengthComputable) {
-        const p = Math.round(e.loaded / e.total * 100);
-        fill.style.width = p + "%";
-        label.textContent = "Subiendo... " + p + "%";
-      }
-    };
-    xhr.onload = () => {
-      pw.classList.add("hidden");
-      if (xhr.status === 200) { showToast("Archivo subido!", "success"); cargarArchivos(); }
-      else {
-        try { showToast(JSON.parse(xhr.responseText).error || "Error al subir.", "error"); }
-        catch { showToast("Error al subir.", "error"); }
-      }
-      resolve();
-    };
-    xhr.onerror = () => { pw.classList.add("hidden"); showToast("Error de red.", "error"); resolve(); };
-    xhr.send(fd);
-  });
+  try {
+    const safeName = file.name.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ.\-_ ]/g, '_').trim();
+    await guardarPDF(DIA, safeName, file);
+    fill.style.width = "100%";
+    label.textContent = "¡Guardado!";
+    setTimeout(() => pw.classList.add("hidden"), 800);
+    showToast("Archivo guardado!", "success");
+    cargarArchivos();
+  } catch {
+    pw.classList.add("hidden");
+    showToast("Error al guardar el archivo.", "error");
+  }
 }
 
 /* Input de archivo */
@@ -117,16 +101,28 @@ if (dropZone) {
 }
 
 /* Visor PDF */
-function abrirPDF(nombre) {
+let _blobURL = null;
+async function abrirPDF(nombre) {
   document.getElementById("modal-title").textContent = nombre;
-  document.getElementById("pdf-frame").src = "/uploads/" + DIA + "/" + encodeURIComponent(nombre);
+  document.getElementById("pdf-frame").src = "";
   document.getElementById("modal-overlay").classList.remove("hidden");
   document.body.style.overflow = "hidden";
+  try {
+    const blob = await obtenerPDF(DIA, nombre);
+    if (blob) {
+      if (_blobURL) URL.revokeObjectURL(_blobURL);
+      _blobURL = URL.createObjectURL(blob);
+      document.getElementById("pdf-frame").src = _blobURL;
+    }
+  } catch {
+    showToast("Error al abrir el archivo.", "error");
+  }
 }
 function cerrarPDF() {
   document.getElementById("pdf-frame").src = "";
   document.getElementById("modal-overlay").classList.add("hidden");
   document.body.style.overflow = "";
+  if (_blobURL) { URL.revokeObjectURL(_blobURL); _blobURL = null; }
 }
 document.getElementById("modal-close").addEventListener("click", cerrarPDF);
 document.getElementById("modal-overlay").addEventListener("click", e => {
@@ -138,11 +134,12 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarPDF();
 async function eliminarArchivo(nombre) {
   if (!confirm('Eliminar "' + nombre + '"?')) return;
   try {
-    const res = await fetch("/api/archivos/" + DIA + "/" + encodeURIComponent(nombre), { method: "DELETE" });
-    const data = await res.json();
-    if (res.ok) { showToast("Archivo eliminado.", "success"); cargarArchivos(); }
-    else showToast(data.error || "Error al eliminar.", "error");
-  } catch { showToast("Error de red.", "error"); }
+    await eliminarPDF(DIA, nombre);
+    showToast("Archivo eliminado.", "success");
+    cargarArchivos();
+  } catch {
+    showToast("Error al eliminar.", "error");
+  }
 }
 
 cargarArchivos();

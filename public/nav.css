@@ -38,6 +38,51 @@
 .nav-link.active { background: var(--primary-mid); color: #fff; }
 .nav-spacer { flex: 1; }
 
+/* ── Indicador túnel online ──────────────────────────── */
+.nav-tunnel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 99px;
+  padding: 4px 10px 4px 8px;
+}
+.nav-tunnel.hidden { display: none; }
+.nav-tunnel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 6px #4ade80;
+  animation: pulse-dot 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+.nav-tunnel-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #4ade80;
+  letter-spacing: 0.3px;
+}
+.nav-tunnel-btn {
+  background: linear-gradient(135deg, var(--primary-mid), #7c3aed);
+  color: #fff;
+  border: none;
+  border-radius: 99px;
+  padding: 4px 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: opacity .15s;
+  white-space: nowrap;
+}
+.nav-tunnel-btn:hover { opacity: 0.85; }
+
 /* ── Hero (home) ─────────────────────────────────────── */
 .hero {
   position: relative;
