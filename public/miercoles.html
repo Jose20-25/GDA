@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GDA - Miercoles</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="nav.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+
+  <header class="page-header">
+    <div class="page-header-inner">
+      <a href="index.html" class="back-link">← Inicio</a>
+      <div class="page-header-title">
+        <span class="page-icon">🎼</span>
+        <div>
+          <span class="hero-badge">Cadena de Canticos</span>
+          <h1>Miercoles</h1>
+          <p class="page-header-sub">Servicio de mitad de semana</p>
+        </div>
+      </div>
+    </div>
+    <div class="hero-wave">
+      <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" fill="var(--bg)"/>
+      </svg>
+    </div>
+  </header>
+
+  <main class="main-day">
+    <section class="calendario-section">
+      <div id="calendario-container"></div>
+    </section>
+
+    <section class="day-panel">
+      <div class="panel-header">
+        <div class="panel-title-group">
+          <div class="panel-day-icon">🎼</div>
+          <div>
+            <h2>Canticos del Miercoles</h2>
+            <p class="panel-subtitle">Servicio de mitad de semana - Cadena de adoracion</p>
+          </div>
+        </div>
+        <label class="btn-upload" for="file-dia">
+          <span>&#8679;</span> Subir PDF
+          <input type="file" id="file-dia" accept=".pdf" data-dia="miercoles" hidden/>
+        </label>
+      </div>
+
+      <div class="drop-zone" data-dia="miercoles">
+        <span class="drop-icon">📂</span>
+        <span>Arrastra un PDF aqui o usa el boton <strong>Subir PDF</strong></span>
+      </div>
+
+      <div class="progress-wrap hidden" id="progress-dia">
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+        <span class="progress-label">Subiendo...</span>
+      </div>
+
+      <div class="file-list" id="file-list"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span>GDA Musica y Alabanza</span>
+      <span class="footer-sep">·</span>
+      <span>Que cada cantico sea una ofrenda a Dios 🎶</span>
+    </div>
+  </footer>
+
+  <div class="modal-overlay hidden" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modal-title"></span>
+        <button class="modal-close" id="modal-close" aria-label="Cerrar">X</button>
+      </div>
+      <div class="modal-body">
+        <iframe id="pdf-frame" src="" title="Visor de PDF"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="nav.js"></script>
+  <script>const DIA_ACTUAL = 'miercoles';</script>
+  <script src="app.js"></script>
+  <script src="calendario.js"></script>
+</body>
+</html>

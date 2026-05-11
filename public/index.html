@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GDA — Cadenas de Canticos</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="nav.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+
+  <header class="hero">
+    <div class="hero-bg-overlay"></div>
+    <div class="hero-inner">
+      <img src="/logo/gda.png" alt="Logo GDA" class="hero-logo" onerror="this.style.display='none'"/>
+      <div class="hero-text">
+        <span class="hero-badge">Portal de Musicos</span>
+        <h1>Cadenas de Canticos</h1>
+        <p class="hero-desc">
+          Espacio dedicado al equipo de musica y alabanza de GDA. Aqui encontraras
+          las cadenas de canticos organizadas por dia de servicio, listas para
+          consultarlas antes o durante cada reunion.
+          <strong>Preparate para ministrar!</strong>
+        </p>
+        <div class="hero-links">
+          <a href="miercoles.html" class="hero-btn">Miercoles</a>
+          <a href="viernes.html" class="hero-btn">Viernes</a>
+          <a href="domingo.html" class="hero-btn">Domingo</a>
+          <a href="vigilias.html" class="hero-btn hero-btn--outline">Vigilias</a>
+        </div>
+      </div>
+    </div>
+    <div class="hero-wave">
+      <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" fill="var(--bg)"/>
+      </svg>
+    </div>
+  </header>
+
+  <main class="main-home">
+    <section class="team-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Nuestro Equipo</h2>
+          <p class="section-sub">Siervos que dan lo mejor para la honra de Dios</p>
+        </div>
+        <button class="btn-primary" id="btn-agregar">+ Agregar integrante</button>
+      </div>
+      <div class="team-grid" id="team-grid">
+        <div class="team-loading"><span class="spinner"></span> Cargando equipo...</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span>GDA Musica y Alabanza</span>
+      <span class="footer-sep">·</span>
+      <span>Que cada cantico sea una ofrenda a Dios 🎶</span>
+    </div>
+  </footer>
+
+  <div class="modal-overlay hidden" id="modal-miembro">
+    <div class="modal modal-form">
+      <div class="modal-header">
+        <span class="modal-title" id="modal-miembro-title">Agregar integrante</span>
+        <button class="modal-close" id="modal-miembro-close">X</button>
+      </div>
+      <div class="modal-body modal-form-body">
+        <form id="form-miembro" enctype="multipart/form-data">
+          <input type="hidden" id="miembro-id"/>
+          <div class="form-foto-wrap">
+            <div class="form-foto-preview" id="foto-preview">
+              <span class="foto-placeholder-icon">👤</span>
+            </div>
+            <label class="btn-foto" for="input-foto">
+              📷 Subir foto
+              <input type="file" id="input-foto" name="foto" accept="image/*" hidden/>
+            </label>
+            <p class="form-hint">JPG, PNG o WEBP - max 5 MB</p>
+          </div>
+          <div class="form-group">
+            <label for="input-nombre">Nombre completo *</label>
+            <input type="text" id="input-nombre" name="nombre" placeholder="Ej: Juan Hernandez" required maxlength="80"/>
+          </div>
+          <div class="form-group">
+            <label for="input-cargo">Cargo / Rol *</label>
+            <input type="text" id="input-cargo" name="cargo" placeholder="Ej: Director de alabanza" required maxlength="80"/>
+          </div>
+          <div class="form-group">
+            <label for="input-instrumento">Instrumento</label>
+            <input type="text" id="input-instrumento" name="instrumento" placeholder="Ej: Guitarra, Piano, Voz..." maxlength="80"/>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" id="btn-cancelar-miembro">Cancelar</button>
+            <button type="submit" class="btn-primary">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- MODAL VER PERFIL -->
+  <div class="modal-overlay hidden" id="modal-perfil">
+    <div class="modal modal-perfil">
+      <button class="modal-perfil-close" id="modal-perfil-close" aria-label="Cerrar">✕</button>
+      <div class="perfil-body">
+        <div class="perfil-left" id="perfil-avatar"></div>
+        <div class="perfil-right">
+          <div class="perfil-badge">Integrante del equipo</div>
+          <h2 class="perfil-nombre" id="perfil-nombre"></h2>
+          <div class="perfil-row">
+            <span class="perfil-label">🎤 Cargo</span>
+            <span class="perfil-value" id="perfil-cargo"></span>
+          </div>
+          <div class="perfil-row">
+            <span class="perfil-label">🎵 Instrumento</span>
+            <span class="perfil-value" id="perfil-instrumento"></span>
+          </div>
+          <button class="btn-primary" id="perfil-btn-editar" style="margin-top:28px">✏ Editar perfil</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="nav.js"></script>
+  <script src="home.js"></script>
+</body>
+</html>
