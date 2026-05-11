@@ -101,23 +101,24 @@ if (dropZone) {
 }
 
 /* Visor PDF */
-const _esMobil = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const GITHUB_BASE = 'https://jose20-25.github.io/GDA/public/';
 let _blobURL = null;
 async function abrirPDF(nombre) {
   try {
+    const estaticos = await listarPDFsEstaticos(DIA);
+    if (estaticos.includes(nombre)) {
+      // Archivo estático: abrir con Google Docs Viewer
+      const pdfURL = GITHUB_BASE + DIA + '/' + encodeURIComponent(nombre);
+      const viewerURL = 'https://docs.google.com/viewer?url=' + encodeURIComponent(pdfURL);
+      window.open(viewerURL, '_blank');
+      return;
+    }
+    // Archivo local (IndexedDB): abrir blob en nueva pestaña
     const blob = await obtenerPDF(DIA, nombre);
     if (!blob) { showToast("No se pudo cargar el archivo.", "error"); return; }
     if (_blobURL) URL.revokeObjectURL(_blobURL);
     _blobURL = URL.createObjectURL(blob);
-    if (_esMobil) {
-      // En móvil abrir en nueva pestaña (iOS Safari no soporta iframe PDF)
-      window.open(_blobURL, '_blank');
-    } else {
-      document.getElementById("modal-title").textContent = nombre;
-      document.getElementById("pdf-frame").src = _blobURL;
-      document.getElementById("modal-overlay").classList.remove("hidden");
-      document.body.style.overflow = "hidden";
-    }
+    window.open(_blobURL, '_blank');
   } catch {
     showToast("Error al abrir el archivo.", "error");
   }
