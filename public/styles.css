@@ -530,7 +530,7 @@ footer {
   .tab { font-size: 0.78rem; padding: 0 10px; min-width: 0; }
   .tab-label { display: none; }
   .tab-icon { font-size: 1.3rem; }
-  .panel-header { padding: 18px 16px 0; }
+  .panel-header { padding: 18px 16px 0; flex-direction: column; align-items: flex-start; }
   .panel-title-group { gap: 10px; }
   .panel-day-icon { width: 42px; height: 42px; font-size: 1.3rem; }
   .panel-header h2 { font-size: 1.1rem; }
@@ -540,4 +540,5 @@ footer {
   .file-item { flex-wrap: wrap; padding: 12px 14px; }
   .file-actions { width: 100%; justify-content: flex-end; }
   .btn-upload { font-size: 0.82rem; padding: 10px 14px; }
+  .modal { max-width: 100%; height: 100vh; border-radius: 0; }
 }

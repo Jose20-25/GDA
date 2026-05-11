@@ -101,18 +101,22 @@ if (dropZone) {
 }
 
 /* Visor PDF */
+const _esMobil = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 let _blobURL = null;
 async function abrirPDF(nombre) {
-  document.getElementById("modal-title").textContent = nombre;
-  document.getElementById("pdf-frame").src = "";
-  document.getElementById("modal-overlay").classList.remove("hidden");
-  document.body.style.overflow = "hidden";
   try {
     const blob = await obtenerPDF(DIA, nombre);
-    if (blob) {
-      if (_blobURL) URL.revokeObjectURL(_blobURL);
-      _blobURL = URL.createObjectURL(blob);
+    if (!blob) { showToast("No se pudo cargar el archivo.", "error"); return; }
+    if (_blobURL) URL.revokeObjectURL(_blobURL);
+    _blobURL = URL.createObjectURL(blob);
+    if (_esMobil) {
+      // En móvil abrir en nueva pestaña (iOS Safari no soporta iframe PDF)
+      window.open(_blobURL, '_blank');
+    } else {
+      document.getElementById("modal-title").textContent = nombre;
       document.getElementById("pdf-frame").src = _blobURL;
+      document.getElementById("modal-overlay").classList.remove("hidden");
+      document.body.style.overflow = "hidden";
     }
   } catch {
     showToast("Error al abrir el archivo.", "error");
